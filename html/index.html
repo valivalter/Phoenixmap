@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenixmap</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="jumbotron">
+            <h1 class="display-4">Welcome to the Phoenixmap🐦‍🔥 Vis2 project page</h1>
+            <p class="lead">This project implements Phoenixmap, a visualization algorithm designed to tackle the problems of visualizing multiple spatial or spatiotemporal distributions at once. The working demo can be found <a href="https://valivalter.github.io/Phoenixmap/">here</a>, the source code and technical documentation <a href="https://github.com/valivalter/Phoenixmap">here</a></p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h2>About the algorithm</h2>
+                <p>The essence of the algorithm is that it assigns an outline to the given data points in a certain way, with varying thickness to represent the density of data points in certain regions. The steps of the algorithm are:</p>
+            <ol>
+                <li>Compute outline based on the given datapoints (I used the convex hull algorithm for this step).</li>
+                <li>Offset the outline by a small number.</li>
+                <li>Generate a closed Bezier curve based on the offset hull.</li>
+                <li>Divide the curve into a number of segments.</li>
+                <li>Find the inscribed circle center for every segment endpoint.</li>
+                <li>Define regions connecting every adjacent segment endpoints with their inscribed circle centers.</li>
+                <li>Compute the density for every such region, divide the number of datapoints in that region by the area of it.</li>
+                <li>Use weighted arithmetic mean with a specific window size to smooth the densities along the curve.</li>
+                <li>Assign these density values to the stroke widths of the Bezier segments.</li>
+                <li>You have a Phoenixmap🎉</li>
+            </ol>
+            </div>
+            <div class="col-md-6">
+                <img src="algorithm.png" class="img-fluid" alt="Algorithm Image">
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <img src="demo.png" class="img-fluid" alt="Use Case Image">
+            </div>
+            <div class="col-md-6">
+                <h2>Use Cases</h2>
+                <p>For my visualization, I used three different datasets: rat sightings in New York between 2010 and 2017, meteorite landings, and fires in Oregon between 2000 and 2022. Each dataset corresponds to a different use case:</p>
+                <ul>
+                    <li>Rat sightings mode: A slider allows you to select which year's sightings should be displayed via Phoenixmap, and there is a switch to toggle the display of individual sighting locations.</li>
+                    <li>Meteorites mode: The user can create arbitrary polygons by clicking on the map, each selected point is connected to the previous one until the shape is closed. The program then filters the meteorites that were within the selected region and visualizes them using the Phoenixmap algorithm.</li>
+                    <li>Fire occurrences mode: Fire occurrences are grouped by their cause, with 8 differently colored Phoenixmaps representing them, making it easier to compare multiple spatial distributions at once. The Phoenixmaps for each category can be hidden and shown as desired.</li>
+                </ul>
+            </div>
+            <p class="text-muted">Reference: Zhao, Junhan, et al. "Phoenixmap: An abstract approach to visualize 2d spatial distributions." IEEE Transactions on Visualization and Computer Graphics 27.3 (2019): 2000-2014.</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
