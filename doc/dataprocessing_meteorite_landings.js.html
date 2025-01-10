@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dataprocessing/meteorite_landings.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dataprocessing/meteorite_landings.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Processes meteorite landing data to extract latitude, longitude, and year.
+ *
+ * @param {Array&lt;Object>} data - The array of meteorite landing data objects.
+ * @returns {Array&lt;Array&lt;number>>} An array of coordinate pairs [latitude, longitude] for each meteorite landing.
+ */
+function processMeteoriteLandings(data) {
+    const meteorites = data
+        .filter(row => row['year'] &amp;&amp; row['reclat'] &amp;&amp; row['reclong'])
+        .map(row => ({
+            latitude: row['reclat'],
+            longitude: row['reclong'],
+            year: row['year'],
+        }));
+
+    const pointSet = [];
+    meteorites.forEach(meteorite => {
+        pointSet.push([meteorite.latitude, meteorite.longitude]);
+    });
+
+    console.log('Meteorite landings:', pointSet);
+    return pointSet;
+}
+
+/**
+ * Filters a set of meteorite landing points to only include those within a specified bounding polygon.
+ *
+ * @param {Array&lt;Array&lt;number>>} pointSet - An array of points representing meteorite landings, where each point is an array [latitude, longitude].
+ * @param {Array&lt;Array&lt;number>>} boundingPolygonPoints - An array of points representing the vertices of the bounding polygon, where each point is an array [latitude, longitude].
+ * @returns {Array&lt;Array&lt;number>>} - An array of points from the pointSet that are contained within the bounding polygon.
+ */
+function boundMeteoritePoints(pointSet, boundingPolygonPoints) {
+    turfPolygon = turf.polygon([boundingPolygonPoints.map(point => [point[1], point[0]])]); // change from lat-long to long-lat for turf
+    const containedPointSet = pointSet.filter(point => turf.booleanPointInPolygon([point[1], point[0]], turfPolygon));
+    return containedPointSet;
+}
+
+/**
+ * Uses Phoenixmap visualization to show the meteorite landings.
+ *
+ * @param {Object} phoenixPolygon - An object representing the Phoenixmap polygon.
+ * @param {Array&lt;Array&lt;number>>} phoenixPolygon.bezierPoints - An array of points defining the polygon.
+ * @param {Array&lt;number>} phoenixPolygon.densities - An array of density values corresponding to each segment of the polygon.
+ */
+function showMeteoritesPhoenixmap(phoenixPolygon) {
+    for (let i = 0; i &lt; phoenixPolygon.bezierPoints.length-1; i++) {
+        const point1 = phoenixPolygon.bezierPoints[i];
+        const point2 = phoenixPolygon.bezierPoints[i+1];
+        L.polyline([point1, point2], {
+            color: 'blue',
+            opacity: 0.5,
+            weight: phoenixPolygon.densities[i] * 10000,
+        }).addTo(map);
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#boundMeteoritePoints">boundMeteoritePoints</a></li><li><a href="global.html#calculateFiresPhoenixmap">calculateFiresPhoenixmap</a></li><li><a href="global.html#calculateRatSightingsPhoenixmap">calculateRatSightingsPhoenixmap</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#fireModeUpdate">fireModeUpdate</a></li><li><a href="global.html#getBezier">getBezier</a></li><li><a href="global.html#getDensities">getDensities</a></li><li><a href="global.html#getInscribedCircleCenters">getInscribedCircleCenters</a></li><li><a href="global.html#getOffsetConvexHull">getOffsetConvexHull</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#phoenixmap">phoenixmap</a></li><li><a href="global.html#processData">processData</a></li><li><a href="global.html#processFireOccurrences">processFireOccurrences</a></li><li><a href="global.html#processMeteoriteLandings">processMeteoriteLandings</a></li><li><a href="global.html#processRatSightings">processRatSightings</a></li><li><a href="global.html#ratSightingsModeUpdate">ratSightingsModeUpdate</a></li><li><a href="global.html#showFiresPhoenixmap">showFiresPhoenixmap</a></li><li><a href="global.html#showMeteoritesPhoenixmap">showMeteoritesPhoenixmap</a></li><li><a href="global.html#showRatSightings">showRatSightings</a></li><li><a href="global.html#showRatSightingsPhoenixmap">showRatSightingsPhoenixmap</a></li><li><a href="global.html#toLeafletLatLng">toLeafletLatLng</a></li><li><a href="global.html#toTurfLngLat">toTurfLngLat</a></li><li><a href="global.html#toggleFireMode">toggleFireMode</a></li><li><a href="global.html#toggleMeteoriteMode">toggleMeteoriteMode</a></li><li><a href="global.html#toggleRatSightingsMode">toggleRatSightingsMode</a></li><li><a href="global.html#updateNavbarButtons">updateNavbarButtons</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jan 10 2025 16:59:28 GMT+0100 (közép-európai téli idő)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

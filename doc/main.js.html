@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Leaflet map
+const map = L.map('map').setView([47.7, 13.6], 7); // Initialize the map centered on Vienna
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright">OpenStreetMap&lt;/a> contributors'
+}).addTo(map);
+
+// process all datasets and store the needed coordinate pairs and Phoenixmap polygon objects.
+var ratSightingPoints, ratSightingPolygons;
+var meteoritePoints;
+var firePolygons;
+processData();
+
+
+/**
+ * Asynchronously processes all datasets (rat sightings, meteorite landings, fire occurrences) and stores the needed coordinate pairs and Phoenixmap polygon objects.
+ * 
+ * @throws {Error} If any of the data loading or processing steps fail.
+ */
+async function processData() {
+    try {
+        // rat sightings data
+        const sightings = await loadCSV('./datasets/rat_sightings.csv');
+        ratSightingPoints = processRatSightings(sightings);
+        ratSightingPolygons = calculateRatSightingsPhoenixmap(ratSightingPoints);
+
+        // meteorite landings data
+        const meteorites = await loadCSV('./datasets/meteorite_landings.csv');
+        meteoritePoints = processMeteoriteLandings(meteorites);
+
+        // fire occurrence data
+        const fires = await loadCSV('./datasets/fire_occurrences.csv');
+        const pointSets = processFireOccurrences(fires)
+        firePolygons = calculateFiresPhoenixmap(pointSets);
+    } catch (error) {
+        console.error(`Error processing data:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Asynchronously loads and parses a CSV file from the given path.
+ *
+ * @param {string} path - The path to the CSV file.
+ * @returns {Promise&lt;Object[]>} A promise that resolves to an array of objects representing the parsed CSV data.
+ * @throws {Error} If there is an error fetching or parsing the CSV file.
+ */
+async function loadCSV(path) {
+    try {
+        const response = await fetch(path);
+        const csvText = await response.text();
+        return await new Promise((resolve, reject) => {
+            Papa.parse(csvText, {
+                worker: true,
+                header: true,
+                dynamicTyping: true,
+                complete: function (results) {
+                    console.log('CSV file successfully processed');
+                    console.log('Size:', results);
+                    resolve(results.data);
+                },
+                error: function (parseError) {
+                    console.error('Error parsing CSV:', parseError);
+                    reject(parseError);
+                }
+            });
+        });
+    } catch (fetchError) {
+        console.error('Error fetching CSV file:', fetchError);
+        throw fetchError;
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#boundMeteoritePoints">boundMeteoritePoints</a></li><li><a href="global.html#calculateFiresPhoenixmap">calculateFiresPhoenixmap</a></li><li><a href="global.html#calculateRatSightingsPhoenixmap">calculateRatSightingsPhoenixmap</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#fireModeUpdate">fireModeUpdate</a></li><li><a href="global.html#getBezier">getBezier</a></li><li><a href="global.html#getDensities">getDensities</a></li><li><a href="global.html#getInscribedCircleCenters">getInscribedCircleCenters</a></li><li><a href="global.html#getOffsetConvexHull">getOffsetConvexHull</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#phoenixmap">phoenixmap</a></li><li><a href="global.html#processData">processData</a></li><li><a href="global.html#processFireOccurrences">processFireOccurrences</a></li><li><a href="global.html#processMeteoriteLandings">processMeteoriteLandings</a></li><li><a href="global.html#processRatSightings">processRatSightings</a></li><li><a href="global.html#ratSightingsModeUpdate">ratSightingsModeUpdate</a></li><li><a href="global.html#showFiresPhoenixmap">showFiresPhoenixmap</a></li><li><a href="global.html#showMeteoritesPhoenixmap">showMeteoritesPhoenixmap</a></li><li><a href="global.html#showRatSightings">showRatSightings</a></li><li><a href="global.html#showRatSightingsPhoenixmap">showRatSightingsPhoenixmap</a></li><li><a href="global.html#toLeafletLatLng">toLeafletLatLng</a></li><li><a href="global.html#toTurfLngLat">toTurfLngLat</a></li><li><a href="global.html#toggleFireMode">toggleFireMode</a></li><li><a href="global.html#toggleMeteoriteMode">toggleMeteoriteMode</a></li><li><a href="global.html#toggleRatSightingsMode">toggleRatSightingsMode</a></li><li><a href="global.html#updateNavbarButtons">updateNavbarButtons</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jan 10 2025 16:59:28 GMT+0100 (közép-európai téli idő)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

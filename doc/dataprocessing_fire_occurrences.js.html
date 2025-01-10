@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dataprocessing/fire_occurrences.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dataprocessing/fire_occurrences.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Processes fire occurrence data to filter and categorize by cause.
+ *
+ * @param {Array&lt;Object>} data - The array of fire occurrence data objects.
+ * @returns {Map&lt;string, Array&lt;Array&lt;number>>>} A map where the keys are causes of the fires and the values are arrays of latitude and longitude pairs.
+ */
+function processFireOccurrences(data) {
+    const fires = data
+        .filter(row =>
+            row['GeneralCause'] !== 'Under Invest' &amp;&amp;
+            row['GeneralCause'] !== 'Miscellaneous' &amp;&amp;
+            row['Lat_DD'] &amp;&amp; row['Long_DD'])
+        .map(row => ({
+            latitude: row['Lat_DD'],
+            longitude: row['Long_DD'],
+            cause: row['GeneralCause'],
+        }));
+
+    const pointSets = new Map();
+    fires.forEach(fire => {
+        if (!pointSets.has(fire.cause)) {
+            pointSets.set(fire.cause, []);
+        }
+        pointSets.get(fire.cause).push([fire.latitude, fire.longitude]);
+    });
+
+    console.log('Fire occurrences:', pointSets);
+    return pointSets;
+}
+
+
+/**
+ * Calculates the Phoenixmap polygons for a given set of fire occurrence points.
+ *
+ * @param {Map&lt;string, Array&lt;Array&lt;number>>>} pointSets - A map where the key is the cause of the fire and the value is an array of points representing fire occurrences.
+ * @returns {Map&lt;string, Object>} A map where the key is the cause of the fire and the value is the corresponding Phoenixmap polygon object.
+ */
+function calculateFiresPhoenixmap(pointSets) {
+    const phoenixPolygons = new Map();
+    pointSets.forEach((pointSet, cause) => {
+        const phoenixPolygon = phoenixmap(pointSet);
+        phoenixPolygons.set(cause, phoenixPolygon);
+    });
+    return phoenixPolygons;
+}
+
+/**
+ * Displays fire occurrences via Phoenixmap visualization for given causes.
+ *
+ * @param {Object[]} phoenixPolygons - An array of Phoenixmap polygon objects representing fire occurrences.
+ * @param {Array} causes - An array of strings representing the causes of the fires to be shown.
+ */
+function showFiresPhoenixmap(phoenixPolygons, causes) {
+    const colors = new Map([
+        ['Lightning', 'yellow'],
+        ['Smoking', 'gray'],
+        ['Recreation', 'green'],
+        ['Debris Burning', 'black'],
+        ['Equipment Use', 'blue'],
+        ['Arson', 'red'],
+        ['Juveniles', 'white'],
+        ['Railroad', 'turquoise'],
+    ]);
+    phoenixPolygons.forEach((phoenixPolygon, cause) => {
+        if (causes.includes(cause)) {
+            for (let i = 0; i &lt; phoenixPolygon.bezierPoints.length - 1; i++) {
+                const point1 = phoenixPolygon.bezierPoints[i];
+                const point2 = phoenixPolygon.bezierPoints[i+1];
+                L.polyline([point1, point2], {
+                    color: colors.get(cause),
+                    opacity: 0.5,
+                    weight: phoenixPolygon.densities[i] * 500,
+                }).addTo(map);
+            }
+        }
+    });
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#boundMeteoritePoints">boundMeteoritePoints</a></li><li><a href="global.html#calculateFiresPhoenixmap">calculateFiresPhoenixmap</a></li><li><a href="global.html#calculateRatSightingsPhoenixmap">calculateRatSightingsPhoenixmap</a></li><li><a href="global.html#clearMap">clearMap</a></li><li><a href="global.html#fireModeUpdate">fireModeUpdate</a></li><li><a href="global.html#getBezier">getBezier</a></li><li><a href="global.html#getDensities">getDensities</a></li><li><a href="global.html#getInscribedCircleCenters">getInscribedCircleCenters</a></li><li><a href="global.html#getOffsetConvexHull">getOffsetConvexHull</a></li><li><a href="global.html#loadCSV">loadCSV</a></li><li><a href="global.html#phoenixmap">phoenixmap</a></li><li><a href="global.html#processData">processData</a></li><li><a href="global.html#processFireOccurrences">processFireOccurrences</a></li><li><a href="global.html#processMeteoriteLandings">processMeteoriteLandings</a></li><li><a href="global.html#processRatSightings">processRatSightings</a></li><li><a href="global.html#ratSightingsModeUpdate">ratSightingsModeUpdate</a></li><li><a href="global.html#showFiresPhoenixmap">showFiresPhoenixmap</a></li><li><a href="global.html#showMeteoritesPhoenixmap">showMeteoritesPhoenixmap</a></li><li><a href="global.html#showRatSightings">showRatSightings</a></li><li><a href="global.html#showRatSightingsPhoenixmap">showRatSightingsPhoenixmap</a></li><li><a href="global.html#toLeafletLatLng">toLeafletLatLng</a></li><li><a href="global.html#toTurfLngLat">toTurfLngLat</a></li><li><a href="global.html#toggleFireMode">toggleFireMode</a></li><li><a href="global.html#toggleMeteoriteMode">toggleMeteoriteMode</a></li><li><a href="global.html#toggleRatSightingsMode">toggleRatSightingsMode</a></li><li><a href="global.html#updateNavbarButtons">updateNavbarButtons</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jan 10 2025 16:59:28 GMT+0100 (közép-európai téli idő)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
